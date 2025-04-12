@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useVideo } from "@/context/VideoContext";
 
@@ -26,7 +27,14 @@ export default function Header() {
     <header className="bg-[#00171F] text-white sticky top-0 z-40 shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-[#007EA7]">EduStream</span>
+          <Image
+            src="/book.png"
+            alt="Book icon"
+            width={32}
+            height={32}
+            className="h-9 w-auto"
+          />
+          <span className="text-2xl font-bold text-[#007EA7]">Feynman</span>
         </Link>
 
         {/* Desktop navigation */}
@@ -92,6 +100,16 @@ export default function Header() {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-[#00171F] px-4 py-4 border-t border-[#003459]">
+          <div className="flex items-center space-x-2 mb-4">
+            <Image
+              src="/book.png"
+              alt="Book icon"
+              width={24}
+              height={24}
+              className="h-6 w-auto"
+            />
+            <span className="text-xl font-bold text-[#007EA7]">Feynman</span>
+          </div>
           <nav className="flex flex-col space-y-4">
             <Link
               href="/"

@@ -12,6 +12,9 @@ module.exports = {
         "primary-dark": "#003459",
         "bg-dark": "#00171F",
       },
+      fontFamily: {
+        sans: ["var(--font-nunito)", "sans-serif"],
+      },
     },
   },
   plugins: [],

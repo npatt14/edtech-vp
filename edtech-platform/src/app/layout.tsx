@@ -1,13 +1,17 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Nunito } from "next/font/google";
 import { VideoProvider } from "@/context/VideoContext";
 import Header from "@/components/Header";
 
-const inter = Inter({ subsets: ["latin"] });
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-nunito",
+});
 
 export const metadata: Metadata = {
-  title: "EduStream - Educational Video Platform",
+  title: "Feynman - Educational Video Platform",
   description: "Watch, create, and interact with educational videos",
 };
 
@@ -18,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-white min-h-screen`}>
+      <body className={`${nunito.className} bg-white min-h-screen`}>
         <VideoProvider>
           <div className="flex flex-col min-h-screen">
             <Header />
@@ -28,14 +32,14 @@ export default function RootLayout({
                 <div className="flex flex-col md:flex-row items-center justify-between">
                   <div className="mb-4 md:mb-0">
                     <span className="text-xl font-bold text-[#007EA7]">
-                      EduStream
+                      Feynman
                     </span>
                     <p className="text-sm text-gray-400 mt-1">
                       Expanding minds through educational content
                     </p>
                   </div>
                   <div className="text-sm text-gray-400">
-                    © {new Date().getFullYear()} EduStream. All rights reserved.
+                    © {new Date().getFullYear()} Feynman. All rights reserved.
                   </div>
                 </div>
               </div>
