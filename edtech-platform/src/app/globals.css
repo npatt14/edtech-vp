@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #007EA7;
+  --primary-dark: #003459;
+  --bg-dark: #00171F;
+  --white: #FFFFFF;
+}
+
+@layer base {
+  body {
+    @apply text-gray-900 bg-gray-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-[#003459];
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-6 py-3 font-semibold rounded-lg transition-colors duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-[#007EA7] text-white hover:bg-[#003459];
+  }
+  
+  .btn-secondary {
+    @apply bg-[#00171F] text-white hover:bg-[#003459];
+  }
+  
+  .btn-outline {
+    @apply border-2 border-[#007EA7] text-[#007EA7] hover:bg-[#007EA7] hover:text-white;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-md overflow-hidden;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #007EA7;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #003459;
+}
+
+/* Video player custom styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 4px;
+  background: #003459;
+  border-radius: 2px;
+  background-image: linear-gradient(#007EA7, #007EA7);
+  background-repeat: no-repeat;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.5);
+}
+
+input[type="range"]::-webkit-slider-runnable-track  {
+  -webkit-appearance: none;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+/* For Firefox */
+input[type="range"]::-moz-range-track {
+  background: #003459;
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.5);
+}
+
+/* For line clamp support */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
