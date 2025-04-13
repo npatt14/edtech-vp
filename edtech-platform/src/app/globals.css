@@ -34,10 +34,38 @@
   }
 }
 
+/* Fade in animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .flowing-gradient {
   background: linear-gradient(-45deg, #00171F, #003459, #007EA7, #00A8E8);
   background-size: 400% 400%;
   animation: flowingGradient 15s ease infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animation-delay-150 {
+  animation-delay: 150ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-450 {
+  animation-delay: 450ms;
 }
 
 @layer base {

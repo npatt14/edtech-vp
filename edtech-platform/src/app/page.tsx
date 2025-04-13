@@ -84,7 +84,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Splash Screen Overlay */}
       {showSplash && (
         <div className="fixed inset-0 flowing-gradient flex flex-col items-center justify-center z-50 transition-opacity duration-500 ease-in-out overflow-hidden">
@@ -120,22 +120,39 @@ export default function Home() {
         </div>
       )}
 
-      {/* Regular Home Page Content */}
+      {/* Background Symbols (always visible) */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {fallingSymbols.slice(0, 20).map((symbolProps) => (
+          <FallingSymbol
+            key={`bg-${symbolProps.id}`}
+            {...symbolProps}
+            fontSize={symbolProps.fontSize * 0.7}
+            duration={symbolProps.duration * 1.5}
+          />
+        ))}
+      </div>
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#00171F] to-[#003459] text-white py-24 md:py-32">
-        <div className="container mx-auto px-4">
+      <section className="relative flowing-gradient text-white py-24 md:py-32 overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in-up">
               Learn Anything, Anywhere
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-10">
+            <p className="text-xl md:text-2xl text-gray-300 mb-10 animate-fade-in-up animation-delay-150">
               Watch, create, and interact with educational videos on any topic
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/videos" className="btn btn-primary">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up animation-delay-300">
+              <Link
+                href="/videos"
+                className="btn btn-primary border border-white/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+              >
                 Browse Videos
               </Link>
-              <Link href="/videos/create" className="btn btn-outline">
+              <Link
+                href="/videos/create"
+                className="btn btn-outline border-white text-white hover:bg-white hover:text-[#003459] hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+              >
                 Share Your Knowledge
               </Link>
             </div>
@@ -143,38 +160,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Quote Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <svg
-              className="w-12 h-12 text-[#007EA7] mx-auto mb-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849h-4v-10h9.983zm14.017 0v7.391c0 5.704-3.748 9.571-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983v-10h9.983z" />
-            </svg>
-            <blockquote className="text-2xl md:text-3xl font-medium italic text-[#003459] mb-6">
-              &ldquo;What I cannot create, I do not understand&rdquo;
-            </blockquote>
-            <cite className="text-lg text-gray-600">― Richard Feynman</cite>
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 relative">
+        <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-white to-transparent"></div>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#003459]">
             Why Choose Feynman?
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
-              <div className="bg-[#007EA7]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+              <div className="bg-[#007EA7]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-[#007EA7] group-hover:text-white transition-all duration-300">
                 <svg
-                  className="w-8 h-8 text-[#007EA7]"
+                  className="w-8 h-8 text-[#007EA7] group-hover:text-white transition-colors duration-300"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -188,7 +186,7 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4">
+              <h3 className="text-xl font-semibold mb-4 text-[#003459]">
                 High-Quality Videos
               </h3>
               <p className="text-gray-600">
@@ -197,10 +195,10 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
-              <div className="bg-[#007EA7]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+              <div className="bg-[#007EA7]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-[#007EA7] group-hover:text-white transition-all duration-300">
                 <svg
-                  className="w-8 h-8 text-[#007EA7]"
+                  className="w-8 h-8 text-[#007EA7] group-hover:text-white transition-colors duration-300"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -214,7 +212,7 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4">
+              <h3 className="text-xl font-semibold mb-4 text-[#003459]">
                 Interactive Learning
               </h3>
               <p className="text-gray-600">
@@ -223,10 +221,10 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
-              <div className="bg-[#007EA7]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+              <div className="bg-[#007EA7]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-[#007EA7] group-hover:text-white transition-all duration-300">
                 <svg
-                  className="w-8 h-8 text-[#007EA7]"
+                  className="w-8 h-8 text-[#007EA7] group-hover:text-white transition-colors duration-300"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -240,7 +238,9 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Create & Share</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[#003459]">
+                Create & Share
+              </h3>
               <p className="text-gray-600">
                 Easily upload and share your own educational content with the
                 community
@@ -251,8 +251,9 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#003459] text-white">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-16 flowing-gradient text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-80"></div>
+        <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Ready to start learning?
           </h2>
@@ -262,7 +263,7 @@ export default function Home() {
           </p>
           <Link
             href="/videos"
-            className="btn bg-white text-[#003459] hover:bg-gray-100"
+            className="btn bg-white text-[#003459] hover:bg-opacity-90 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-transparent"
           >
             Get Started Now
           </Link>
