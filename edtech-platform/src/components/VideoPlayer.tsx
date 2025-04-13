@@ -32,6 +32,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const youtubePlayerRef = useRef<any>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   // Load YouTube API
   useEffect(() => {
@@ -111,6 +112,12 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   };
 
   const startYouTubeTimeUpdater = () => {
+    // Cancel any existing animation frame first
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
     // Update the current time periodically
     const updateYouTubeTime = () => {
       if (youtubePlayerRef.current && ytPlayerReady) {
@@ -122,8 +129,8 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
         }
       }
 
-      // Always request next frame regardless of play state to ensure updates
-      requestAnimationFrame(updateYouTubeTime);
+      // Continue the animation loop
+      animationFrameRef.current = requestAnimationFrame(updateYouTubeTime);
     };
 
     // Start the updater
@@ -328,6 +335,28 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
     }
   };
 
+  // Cleanup animation frame on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, []);
+
+  // Start or stop time updater based on play state
+  useEffect(() => {
+    if (isYouTube && ytPlayerReady) {
+      if (isPlaying) {
+        startYouTubeTimeUpdater();
+      } else if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    }
+  }, [isYouTube, ytPlayerReady, isPlaying]);
+
   return (
     <div
       ref={containerRef}
@@ -413,7 +442,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"
                     />
                   </svg>
                 ) : (
@@ -428,13 +457,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      d="M5 5v14l14-7-14-7z"
                     />
                   </svg>
                 )}
@@ -452,7 +475,19 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 010-7.072m12.728 0l-3.182-3.182a1 1 0 00-1.414 0L9.646 9.464"
+                    d="M11 5L6 9H2v6h4l5 4V5z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.54 8.46a5 5 0 0 1 0 7.07"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19.07 4.93a10 10 0 0 1 0 14.14"
                   />
                 </svg>
                 <input
