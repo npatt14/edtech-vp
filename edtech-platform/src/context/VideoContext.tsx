@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useRef,
 } from "react";
 
 interface Video {
@@ -54,6 +55,9 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
 
+  // Track active requests to prevent duplicates
+  const activeRequests = useRef<Set<string>>(new Set());
+
   // Default to our take-home API endpoint
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
@@ -82,13 +86,55 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       const response = await fetch(`${API_URL}/videos?user_id=${userId}`);
       if (!response.ok) throw new Error("Failed to fetch videos");
       const data = await response.json();
-      console.log("Fetched videos:", data);
+      console.log("Fetched videos API response:", data);
 
-      // Extract videos from response - API returns them in a 'videos' property
-      const videosArray = data.videos || [];
-      setVideos(videosArray);
+      // Extract videos from response
+      let videosArray = [];
 
-      console.log("Processed videos for UI:", videosArray);
+      if (data && typeof data === "object") {
+        // Check if data is already an array of videos
+        if (Array.isArray(data)) {
+          console.log("API returned array directly:", data);
+          videosArray = data;
+        }
+        // Check if videos are in a videos property
+        else if (data.videos && Array.isArray(data.videos)) {
+          console.log("API returned videos in videos property:", data.videos);
+          videosArray = data.videos;
+        }
+        // Try other common API response patterns
+        else {
+          // Look for any array in the response
+          for (const key in data) {
+            if (Array.isArray(data[key])) {
+              console.log(`Found videos in '${key}' property:`, data[key]);
+              videosArray = data[key];
+              break;
+            }
+          }
+        }
+      }
+
+      console.log("Raw videos before processing:", videosArray);
+
+      // Ensure each video has required properties
+      const processedVideos = videosArray.map(
+        (video: Partial<Video> & { id?: string }) => {
+          // Log each video for debugging
+          console.log("Processing video:", video);
+
+          // Ensure video has an id
+          if (!video.video_id && video.id) {
+            console.log("Converting id to video_id:", video);
+            return { ...video, video_id: video.id };
+          }
+
+          return video;
+        }
+      );
+
+      setVideos(processedVideos);
+      console.log("Final videos for UI:", processedVideos);
     } catch (err) {
       console.error("Error fetching videos:", err);
       setError(
@@ -101,6 +147,25 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
   const fetchSingleVideo = async (videoId: string) => {
     try {
+      // Validate videoId
+      if (!videoId) {
+        console.error("Cannot fetch video with undefined ID");
+        setError("Invalid video ID");
+        return;
+      }
+
+      // Check if this request is already in progress
+      const requestKey = `video-${videoId}`;
+      if (activeRequests.current.has(requestKey)) {
+        console.log(
+          `Request for video ${videoId} already in progress, skipping`
+        );
+        return;
+      }
+
+      // Add to active requests
+      activeRequests.current.add(requestKey);
+
       setLoading(true);
       setError(null);
       const response = await fetch(
@@ -114,6 +179,8 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : "An unknown error occurred"
       );
     } finally {
+      // Remove from active requests
+      activeRequests.current.delete(`video-${videoId}`);
       setLoading(false);
     }
   };
@@ -178,19 +245,74 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
   const fetchComments = async (videoId: string) => {
     try {
+      // Validate videoId
+      if (!videoId) {
+        console.error("Cannot fetch comments with undefined video ID");
+        setError("Invalid video ID for comments");
+        return;
+      }
+
+      // Check if this request is already in progress
+      const requestKey = `comments-${videoId}`;
+      if (activeRequests.current.has(requestKey)) {
+        console.log(
+          `Request for comments of video ${videoId} already in progress, skipping`
+        );
+        return;
+      }
+
+      // Add to active requests
+      activeRequests.current.add(requestKey);
+
       setLoading(true);
       setError(null);
+      console.log(`Fetching comments for video ID: ${videoId}`);
       const response = await fetch(
         `${API_URL}/videos/comments?video_id=${videoId}`
       );
       if (!response.ok) throw new Error("Failed to fetch comments");
       const data = await response.json();
-      setComments(data);
+      console.log("Raw comments data from API:", data);
+
+      // Handle different API response formats for comments
+      let commentsArray = [];
+
+      if (data && typeof data === "object") {
+        // Direct array of comments
+        if (Array.isArray(data)) {
+          console.log("API returned comments as array:", data);
+          commentsArray = data;
+        }
+        // Comments in a comments property
+        else if (data.comments && Array.isArray(data.comments)) {
+          console.log(
+            "API returned comments in comments property:",
+            data.comments
+          );
+          commentsArray = data.comments;
+        }
+        // Look for any array in the response
+        else {
+          for (const key in data) {
+            if (Array.isArray(data[key])) {
+              console.log(`Found comments in '${key}' property:`, data[key]);
+              commentsArray = data[key];
+              break;
+            }
+          }
+        }
+      }
+
+      console.log("Processed comments for UI:", commentsArray);
+      setComments(commentsArray);
     } catch (err) {
+      console.error("Error fetching comments:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
     } finally {
+      // Remove from active requests
+      activeRequests.current.delete(`comments-${videoId}`);
       setLoading(false);
     }
   };
@@ -199,6 +321,13 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     comment: Omit<Comment, "comment_id" | "created_at">
   ) => {
     try {
+      // Validate videoId
+      if (!comment.video_id) {
+        console.error("Cannot create comment with undefined video ID");
+        setError("Invalid video ID for comment");
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const response = await fetch(`${API_URL}/videos/comments`, {

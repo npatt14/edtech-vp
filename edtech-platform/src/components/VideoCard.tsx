@@ -4,11 +4,18 @@ import Link from "next/link";
 import { Video } from "@/types";
 
 interface VideoCardProps {
-  video: Video;
+  video: Video & { id?: string };
 }
 
 export default function VideoCard({ video }: VideoCardProps) {
-  const { video_id, title, description, video_url } = video;
+  // Handle potentially missing properties
+  const video_id = video.video_id || video.id;
+  const title = video.title || "Untitled Video";
+  const description = video.description || "No description available";
+  const video_url = video.video_url || "";
+
+  // Log the video info for debugging
+  console.log("Video card rendering:", { video_id, title, video });
 
   // Get thumbnail from video URL
   const getThumbnail = (url: string) => {
@@ -26,6 +33,35 @@ export default function VideoCard({ video }: VideoCardProps) {
     // Default placeholder if not a YouTube video
     return "/placeholder-thumbnail.jpg";
   };
+
+  // Only treat undefined, null, or empty string as invalid
+  if (video_id === undefined || video_id === null || video_id === "") {
+    return (
+      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-[#00171F] shadow-lg transition-all duration-300">
+        <div className="relative aspect-video overflow-hidden">
+          <img
+            src={getThumbnail(video_url)}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#00171F]/60 to-transparent" />
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="text-lg font-semibold text-white line-clamp-1">
+              {title}
+            </h3>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm">
+              Invalid Video ID
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <p className="text-sm text-gray-300 line-clamp-2">{description}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Link href={`/videos/${video_id}`} passHref>

@@ -56,15 +56,30 @@ export default function VideosPage() {
     }
   }, [userId, fetchVideos]);
 
+  // Add debugging for videos array
+  useEffect(() => {
+    if (Array.isArray(videos)) {
+      console.log("Videos array in page:", videos);
+      if (videos.length > 0) {
+        console.log("First video object:", videos[0]);
+      } else {
+        console.log("Videos array is empty");
+      }
+    } else {
+      console.log("Videos is not an array:", videos);
+    }
+  }, [videos]);
+
   // Ensure videos is always an array before filtering
   const filteredVideos = Array.isArray(videos)
     ? videos.filter(
         (video) =>
-          video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          video.description.toLowerCase().includes(searchTerm.toLowerCase())
+          video.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          video.description?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
+  // Show videos if we have any videos from the API
   const hasVideos = Array.isArray(videos) && videos.length > 0;
 
   const handleAddSampleVideo = (sample: SampleVideo) => {

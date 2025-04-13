@@ -41,20 +41,25 @@ export default function VideoForm({
   useEffect(() => {
     if (isEdit && video) {
       setFormData({
-        title: video.title,
-        description: video.description,
-        video_url: video.video_url,
-        user_id: video.user_id,
+        title: video.title || "",
+        description: video.description || "",
+        video_url: video.video_url || "",
+        user_id: video.user_id || userId || "",
       });
     } else if (initialData) {
       setFormData({
-        title: initialData.title,
-        description: initialData.description,
-        video_url: initialData.video_url,
-        user_id: userId,
+        title: initialData.title || "",
+        description: initialData.description || "",
+        video_url: initialData.video_url || "",
+        user_id: userId || "",
       });
     } else {
-      setFormData((prev) => ({ ...prev, user_id: userId }));
+      setFormData({
+        title: "",
+        description: "",
+        video_url: "",
+        user_id: userId || "",
+      });
     }
   }, [isEdit, video, userId, initialData]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useVideo } from "@/context/VideoContext";
@@ -15,13 +15,20 @@ export default function VideoPage() {
   const { currentVideo, fetchSingleVideo, fetchComments, loading, error } =
     useVideo();
   const [showEditForm, setShowEditForm] = useState(false);
+  const initialFetchMade = useRef(false);
 
   useEffect(() => {
-    if (videoId) {
+    if (videoId && !initialFetchMade.current) {
+      console.log("Fetching video with ID:", videoId);
+
+      initialFetchMade.current = true;
+
       fetchSingleVideo(videoId);
       fetchComments(videoId);
+    } else if (!videoId) {
+      console.error("Video ID is undefined, skipping fetch");
     }
-  }, [videoId, fetchSingleVideo, fetchComments]);
+  }, [videoId]);
 
   if (loading) {
     return (
@@ -140,7 +147,7 @@ export default function VideoPage() {
         </div>
       </div>
 
-      <CommentSection videoId={videoId} />
+      <CommentSection videoId={videoId || ""} />
 
       {showEditForm && (
         <VideoForm

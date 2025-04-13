@@ -9,6 +9,12 @@ export default function CommentSection({ videoId }: { videoId: string }) {
   const [commentText, setCommentText] = useState("");
   const [commentorId, setCommentorId] = useState("");
 
+  // For debugging
+  console.log("Comments data:", comments);
+
+  // Ensure comments is always an array
+  const commentsArray = Array.isArray(comments) ? comments : [];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -87,25 +93,30 @@ export default function CommentSection({ videoId }: { videoId: string }) {
       </form>
 
       <div className="space-y-6">
-        {comments.length === 0 ? (
+        {commentsArray.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             No comments yet. Be the first to comment!
           </p>
         ) : (
-          comments.map((comment: CommentType) => (
+          commentsArray.map((comment: CommentType) => (
             <div
-              key={comment.comment_id}
+              key={
+                comment.comment_id ||
+                `comment-${comment.content?.substring(0, 10)}`
+              }
               className="bg-white p-4 rounded-lg shadow"
             >
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-semibold text-[#003459]">
-                  @{comment.user_id}
+                  @{comment.user_id || "anonymous"}
                 </h4>
                 <span className="text-xs text-gray-500">
-                  {formatDate(comment.created_at)}
+                  {comment.created_at
+                    ? formatDate(comment.created_at)
+                    : "Recent"}
                 </span>
               </div>
-              <p className="text-gray-700">{comment.content}</p>
+              <p className="text-gray-700">{comment.content || "No content"}</p>
             </div>
           ))
         )}
