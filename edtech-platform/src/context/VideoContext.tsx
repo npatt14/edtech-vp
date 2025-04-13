@@ -54,7 +54,15 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://takehome.io/";
+  // Default to our take-home API endpoint
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://take-home-assessment-423502.uc.r.appspot.com/api";
+
+  // Log API endpoint for debugging
+  useEffect(() => {
+    console.log("Using API URL:", API_URL);
+  }, [API_URL]);
 
   // Load user ID from localStorage on initial load
   useEffect(() => {
@@ -70,11 +78,19 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+      console.log(`Fetching videos for user: ${userId}`);
       const response = await fetch(`${API_URL}/videos?user_id=${userId}`);
       if (!response.ok) throw new Error("Failed to fetch videos");
       const data = await response.json();
-      setVideos(data);
+      console.log("Fetched videos:", data);
+
+      // Extract videos from response - API returns them in a 'videos' property
+      const videosArray = data.videos || [];
+      setVideos(videosArray);
+
+      console.log("Processed videos for UI:", videosArray);
     } catch (err) {
+      console.error("Error fetching videos:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
@@ -106,14 +122,27 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+      console.log("Creating video with data:", video);
       const response = await fetch(`${API_URL}/videos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(video),
       });
-      if (!response.ok) throw new Error("Failed to create video");
-      await fetchVideos(userId);
+
+      const responseText = await response.text();
+      console.log("Create video response:", responseText);
+
+      if (!response.ok)
+        throw new Error(`Failed to create video: ${responseText}`);
+
+      // Force refresh videos list
+      if (video.user_id) {
+        await fetchVideos(video.user_id);
+      } else if (userId) {
+        await fetchVideos(userId);
+      }
     } catch (err) {
+      console.error("Error creating video:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
@@ -189,9 +218,11 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   };
 
   const handleSetUserId = (id: string) => {
-    setUserId(id);
-    if (id) {
-      fetchVideos(id).catch(console.error);
+    if (id !== userId) {
+      setUserId(id);
+      if (id) {
+        fetchVideos(id).catch(console.error);
+      }
     }
   };
 

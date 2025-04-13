@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useVideo } from "@/context/VideoContext";
 import VideoCard from "@/components/VideoCard";
 import VideoForm from "@/components/VideoForm";
@@ -47,9 +47,11 @@ export default function VideosPage() {
   const [selectedSample, setSelectedSample] = useState<SampleVideo | null>(
     null
   );
+  const previousUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (userId) {
+    if (userId && userId !== previousUserIdRef.current) {
+      previousUserIdRef.current = userId;
       fetchVideos(userId);
     }
   }, [userId, fetchVideos]);
@@ -73,6 +75,14 @@ export default function VideosPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Educational Videos
+          </h1>
+          <p className="text-gray-600">
+            Explore and learn from our collection of educational videos
+          </p>
+        </div>
         {hasVideos && (
           <div className="mt-4 md:mt-0">
             <button
@@ -121,10 +131,29 @@ export default function VideosPage() {
         </div>
       ) : error ? (
         <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-8">
-          <p>{error}</p>
+          <p className="font-semibold">{error}</p>
           <p className="mt-2 text-sm">
             {!userId && "Please set your User ID to view videos."}
           </p>
+          <p className="mt-2 text-sm">
+            The API should be available at
+            https://take-home-assessment-423502.uc.r.appspot.com/api
+          </p>
+          <div className="mt-4">
+            <button
+              onClick={() => {
+                if (userId) {
+                  console.log("Manually refreshing videos for:", userId);
+                  fetchVideos(userId);
+                } else {
+                  alert("Please set your User ID first");
+                }
+              }}
+              className="px-4 py-2 bg-red-200 hover:bg-red-300 rounded-md text-red-800 text-sm font-medium"
+            >
+              Retry Loading Videos
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -132,7 +161,7 @@ export default function VideosPage() {
             <div className="py-8">
               {searchTerm ? (
                 <p className="text-gray-600 text-center">
-                  No videos matching "{searchTerm}"
+                  No videos matching &quot;{searchTerm}&quot;
                 </p>
               ) : (
                 <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">

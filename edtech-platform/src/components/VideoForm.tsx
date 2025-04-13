@@ -115,17 +115,32 @@ export default function VideoForm({
           description: formData.description,
         });
       } else {
+        console.log("Submitting new video with user ID:", formData.user_id);
+
+        // Ensure user ID is set
+        if (!formData.user_id.trim()) {
+          setErrors((prev) => ({ ...prev, user_id: "User ID is required" }));
+          setIsSubmitting(false);
+          return;
+        }
+
         await createVideo({
           user_id: formData.user_id,
           title: formData.title,
           description: formData.description,
           video_url: formData.video_url,
         });
-      }
 
-      onClose();
+        // Give a slight delay to allow state updates to propagate
+        setTimeout(() => {
+          onClose();
+        }, 500);
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
+      alert(
+        "There was a problem adding your video. Please check the console for details."
+      );
     } finally {
       setIsSubmitting(false);
     }
