@@ -26,7 +26,9 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   const [isYouTube, setIsYouTube] = useState(false);
   const [youtubeId, setYoutubeId] = useState("");
   const [hasError, setHasError] = useState(false);
+  const [errorDetails, setErrorDetails] = useState("");
   const [ytPlayerReady, setYtPlayerReady] = useState(false);
+  const [ytApiReady, setYtApiReady] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -381,11 +383,34 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
             />
           </svg>
           <h3 className="text-xl font-semibold mb-2">Video Error</h3>
-          <p className="text-center text-gray-300">
-            Unable to load the video. The URL may be invalid or unsupported.
+          <p className="text-center text-gray-300 mb-2">
+            Unable to load the video. The URL may be invalid, restricted, or not
+            supported by your browser.
           </p>
-          <div className="mt-4 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
+          {errorDetails && (
+            <p className="text-sm text-yellow-300 mb-4 text-center">
+              Error details: {errorDetails}
+            </p>
+          )}
+          <div className="mt-2 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
             <code>{src || "No video URL provided"}</code>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => window.open(src, "_blank")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+            >
+              Open URL directly
+            </button>
+            <button
+              onClick={() => {
+                setHasError(false);
+                setErrorDetails("");
+              }}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
+            >
+              Try again
+            </button>
           </div>
         </div>
       ) : isYouTube ? (
@@ -406,7 +431,34 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
           playsInline
           onLoadStart={() => console.log("Video load started")}
           onLoadedData={() => console.log("Video data loaded")}
-          onError={(e) => console.error("Video error:", e)}
+          onError={(e) => {
+            console.error("Video error:", e);
+
+            // Extract more specific error information if available
+            let errorMessage = "Unknown error";
+            if (videoRef.current) {
+              const mediaError = videoRef.current.error;
+              if (mediaError) {
+                // MediaError codes: 1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED
+                const codeMessages: Record<number, string> = {
+                  1: "Video loading aborted",
+                  2: "Network error while loading video",
+                  3: "Video format not supported or corrupted",
+                  4: "Video format not supported by browser",
+                };
+
+                errorMessage =
+                  codeMessages[mediaError.code] ||
+                  `Error code: ${mediaError.code}`;
+                if (mediaError.message) {
+                  errorMessage += ` - ${mediaError.message}`;
+                }
+              }
+            }
+
+            setErrorDetails(errorMessage);
+            setHasError(true);
+          }}
           autoPlay
         />
       )}
@@ -508,10 +560,10 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
 
             <div className="flex items-center space-x-4">
               <div className="relative group">
-                <button className="text-sm font-medium hover:text-[#007EA7]">
+                <button className="text-sm font-medium hover:text-[#007EA7] px-2 py-1">
                   {playbackRate}x
                 </button>
-                <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-[#00171F] rounded-lg shadow-lg p-2">
+                <div className="absolute bottom-full right-0 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 bg-[#00171F] rounded-lg shadow-lg p-2 min-w-[60px] z-10">
                   <div className="flex flex-col space-y-1">
                     {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
                       <button
