@@ -58,10 +58,27 @@ function FallingSymbol({
 }
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [fallingSymbols, setFallingSymbols] = useState<FallingSymbolProps[]>(
     []
   );
+
+  // Initialize splash screen state based on localStorage
+  useEffect(() => {
+    // Check if this is the first visit
+    const hasVisitedBefore = localStorage.getItem("hasVisitedFeynman");
+
+    if (!hasVisitedBefore) {
+      // First visit - show splash screen and store that user has visited
+      setShowSplash(true);
+    }
+  }, []);
+
+  // Handle splash screen dismissal
+  const dismissSplash = () => {
+    setShowSplash(false);
+    localStorage.setItem("hasVisitedFeynman", "true");
+  };
 
   // Generate falling symbols on component mount
   useEffect(() => {
@@ -111,7 +128,7 @@ export default function Home() {
             </p>
             <p className="text-gray-400 -mt-10 mb-12">- Richard Feynman</p>
             <button
-              onClick={() => setShowSplash(false)}
+              onClick={dismissSplash}
               className="px-8 py-4 bg-[#007EA7] text-white font-semibold rounded-lg hover:bg-[#003459] transition-all duration-300 text-lg border border-white/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#00171F]/20"
             >
               Get Started

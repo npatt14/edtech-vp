@@ -55,7 +55,7 @@ export default function Header() {
             onClick={() => setIsUserIdModalOpen(true)}
             className="flex items-center space-x-1 text-white hover:text-[#007EA7] transition-colors"
           >
-            <span>@{userId || "Set User ID"}</span>
+            <span>{userId || "Set User ID"}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4"
@@ -132,7 +132,7 @@ export default function Header() {
               }}
               className="flex items-center space-x-1 text-white hover:text-[#007EA7] transition-colors"
             >
-              <span>@{userId || "Set User ID"}</span>
+              <span>{userId || "Set User ID"}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4"
@@ -172,7 +172,7 @@ export default function Header() {
                 id="userId"
                 value={tempUserId}
                 onChange={(e) => setTempUserId(e.target.value)}
-                placeholder="Your user ID (e.g., john_smith)"
+                placeholder="Your user ID (john_smith)"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#007EA7] focus:border-transparent"
               />
               <p className="mt-2 text-xs text-gray-500">

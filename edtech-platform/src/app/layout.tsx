@@ -13,6 +13,11 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Feynman - Educational Video Platform",
   description: "Watch, create, and interact with educational videos",
+  icons: {
+    icon: "/book.png",
+    apple: "/book.png",
+    shortcut: "/book.png",
+  },
 };
 
 export default function RootLayout({

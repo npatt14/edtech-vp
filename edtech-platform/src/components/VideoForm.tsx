@@ -8,12 +8,18 @@ interface VideoFormProps {
   video?: Video;
   onClose: () => void;
   isEdit?: boolean;
+  initialData?: {
+    title: string;
+    description: string;
+    video_url: string;
+  } | null;
 }
 
 export default function VideoForm({
   video,
   onClose,
   isEdit = false,
+  initialData = null,
 }: VideoFormProps) {
   const { createVideo, updateVideo, userId } = useVideo();
 
@@ -40,10 +46,17 @@ export default function VideoForm({
         video_url: video.video_url,
         user_id: video.user_id,
       });
+    } else if (initialData) {
+      setFormData({
+        title: initialData.title,
+        description: initialData.description,
+        video_url: initialData.video_url,
+        user_id: userId,
+      });
     } else {
       setFormData((prev) => ({ ...prev, user_id: userId }));
     }
-  }, [isEdit, video, userId]);
+  }, [isEdit, video, userId, initialData]);
 
   const validateForm = () => {
     const newErrors = {
@@ -124,7 +137,11 @@ export default function VideoForm({
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-[#003459]">
-              {isEdit ? "Edit Video" : "Add New Video"}
+              {isEdit
+                ? "Edit Video"
+                : initialData
+                ? "Add Sample Video"
+                : "Add New Video"}
             </h2>
             <button
               onClick={onClose}
@@ -146,6 +163,34 @@ export default function VideoForm({
               </svg>
             </button>
           </div>
+
+          {initialData && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="flex items-start">
+                <div className="mr-3 mt-0.5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-blue-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-blue-800">
+                    We've pre-filled the form with the sample video information.
+                    Feel free to edit any details before adding it to your
+                    collection.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -215,6 +260,12 @@ export default function VideoForm({
                     errors.video_url ? "border-red-500" : "border-gray-300"
                   }`}
                 />
+                {initialData && (
+                  <p className="mt-1 text-xs text-green-600">
+                    This is a valid YouTube URL that will work with our video
+                    player
+                  </p>
+                )}
                 {errors.video_url && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.video_url}
@@ -250,20 +301,42 @@ export default function VideoForm({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-300"
+                className="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-3 bg-[#007EA7] text-white font-semibold rounded-lg hover:bg-[#003459] transition-colors duration-300 disabled:opacity-50"
+                className="px-4 py-2 bg-[#007EA7] text-white font-medium rounded-lg hover:bg-[#003459] transition-colors flex items-center"
               >
-                {isSubmitting
-                  ? "Saving..."
-                  : isEdit
-                  ? "Update Video"
-                  : "Create Video"}
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      ></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  <>{isEdit ? "Update Video" : "Add Video"}</>
+                )}
               </button>
             </div>
           </form>
