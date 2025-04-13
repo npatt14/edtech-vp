@@ -17,6 +17,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   const [showControls, setShowControls] = useState(true);
   const [isYouTube, setIsYouTube] = useState(false);
   const [youtubeId, setYoutubeId] = useState("");
+  const [hasError, setHasError] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,22 +25,49 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
 
   // Check if URL is a YouTube video and extract the ID
   useEffect(() => {
-    if (!src) return;
+    if (!src) {
+      console.error("No video source provided");
+      setHasError(true);
+      return;
+    }
 
     console.log("Video source:", src);
 
-    const youtubeRegex =
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-    const match = src.match(youtubeRegex);
+    try {
+      // Enhanced YouTube regex detection
+      const youtubeRegex =
+        /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+      const match = src.match(youtubeRegex);
 
-    if (match && match[1]) {
-      setIsYouTube(true);
-      setYoutubeId(match[1]);
-      console.log("YouTube video ID extracted:", match[1]);
-    } else {
+      if (match && match[1]) {
+        setIsYouTube(true);
+        setYoutubeId(match[1]);
+        console.log("YouTube video ID extracted:", match[1]);
+      } else {
+        // Try another approach for YouTube URLs
+        const url = new URL(src);
+        if (url.hostname.includes("youtube.com") && url.searchParams.has("v")) {
+          const videoId = url.searchParams.get("v");
+          setIsYouTube(true);
+          setYoutubeId(videoId || "");
+          console.log("YouTube video ID extracted from searchParams:", videoId);
+        } else if (url.hostname.includes("youtu.be")) {
+          const videoId = url.pathname.substring(1);
+          setIsYouTube(true);
+          setYoutubeId(videoId);
+          console.log("YouTube video ID extracted from short URL:", videoId);
+        } else {
+          setIsYouTube(false);
+          setYoutubeId("");
+          console.log("Not a YouTube URL or couldn't extract ID");
+        }
+      }
+      setHasError(false);
+    } catch (error) {
+      console.error("Error processing video URL:", error);
       setIsYouTube(false);
       setYoutubeId("");
-      console.log("Not a YouTube URL or couldn't extract ID");
+      setHasError(true);
     }
   }, [src]);
 
@@ -156,14 +184,44 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
-      {isYouTube ? (
-        <iframe
-          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=0&rel=0`}
-          className="w-full h-full"
-          title={title}
-          allowFullScreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        ></iframe>
+      {hasError ? (
+        <div className="flex flex-col items-center justify-center h-full text-white p-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-16 w-16 text-red-500 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h3 className="text-xl font-semibold mb-2">Video Error</h3>
+          <p className="text-center text-gray-300">
+            Unable to load the video. The URL may be invalid or unsupported.
+          </p>
+          <div className="mt-4 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
+            <code>{src || "No video URL provided"}</code>
+          </div>
+        </div>
+      ) : isYouTube ? (
+        <>
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+            className="w-full h-full"
+            title={title}
+            allowFullScreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            onLoad={() => console.log("YouTube iframe loaded")}
+          ></iframe>
+          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            YouTube Video
+          </div>
+        </>
       ) : (
         <>
           <video
@@ -172,6 +230,12 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
             className="w-full h-full object-contain"
             onClick={togglePlay}
             title={title}
+            controls={false}
+            playsInline
+            onLoadStart={() => console.log("Video load started")}
+            onLoadedData={() => console.log("Video data loaded")}
+            onError={(e) => console.error("Video error:", e)}
+            autoPlay
           />
 
           {showControls && (

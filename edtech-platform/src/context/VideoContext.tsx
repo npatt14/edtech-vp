@@ -168,13 +168,44 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
       setLoading(true);
       setError(null);
+      console.log(`Fetching single video with ID: ${videoId}`);
       const response = await fetch(
         `${API_URL}/videos/single?video_id=${videoId}`
       );
       if (!response.ok) throw new Error("Failed to fetch video");
       const data = await response.json();
-      setCurrentVideo(data);
+      console.log("Single video response:", data);
+
+      // Process response to ensure we have a valid video
+      if (!data) {
+        throw new Error("No video data returned from API");
+      }
+
+      // Extract video from the nested structure if it exists
+      let videoData = data;
+      if (data.video && typeof data.video === "object") {
+        console.log("Video is nested in a 'video' property, extracting it");
+        videoData = data.video;
+      }
+
+      // Ensure video has a video_url
+      if (!videoData.video_url && videoData.url) {
+        videoData.video_url = videoData.url;
+      }
+
+      // If video URL doesn't start with http, make it a proper URL
+      if (
+        videoData.video_url &&
+        typeof videoData.video_url === "string" &&
+        !videoData.video_url.startsWith("http")
+      ) {
+        videoData.video_url = `https://${videoData.video_url}`;
+      }
+
+      console.log("Processed video data:", videoData);
+      setCurrentVideo(videoData);
     } catch (err) {
+      console.error("Error fetching single video:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
