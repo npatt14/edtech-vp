@@ -122,11 +122,11 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
         }
       }
 
-      if (isPlaying) {
-        requestAnimationFrame(updateYouTubeTime);
-      }
+      // Always request next frame regardless of play state to ensure updates
+      requestAnimationFrame(updateYouTubeTime);
     };
 
+    // Start the updater
     updateYouTubeTime();
   };
 
@@ -277,9 +277,22 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   };
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
+    if (isNaN(seconds) || seconds < 0) {
+      return "0:00";
+    }
+
+    // Handle hours for videos longer than 60 minutes
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+
+    if (hours > 0) {
+      return `${hours}:${mins < 10 ? "0" : ""}${mins}:${
+        secs < 10 ? "0" : ""
+      }${secs}`;
+    } else {
+      return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+    }
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -131,17 +131,6 @@ export default function VideoPage() {
             <span className="font-medium">@{currentVideo.user_id}</span>
           </div>
 
-          {/* Debug info */}
-          <div className="text-xs text-gray-400 mb-2">
-            Video ID: {videoId}, URL: {currentVideo.video_url}
-            <details className="mt-1">
-              <summary>Debug info</summary>
-              <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">
-                {JSON.stringify(currentVideo, null, 2)}
-              </pre>
-            </details>
-          </div>
-
           <VideoPlayer
             src={currentVideo.video_url}
             title={currentVideo.title}
