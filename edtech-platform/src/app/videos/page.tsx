@@ -4,11 +4,16 @@ import { useState, useEffect } from "react";
 import { useVideo } from "@/context/VideoContext";
 import VideoCard from "@/components/VideoCard";
 import VideoForm from "@/components/VideoForm";
-import Link from "next/link";
-import Image from "next/image";
+
+// Sample video interface
+interface SampleVideo {
+  title: string;
+  description: string;
+  video_url: string;
+}
 
 // Sample educational videos users can add
-const sampleVideos = [
+const sampleVideos: SampleVideo[] = [
   {
     title: "Introduction to Neural Networks",
     description:
@@ -36,11 +41,12 @@ const sampleVideos = [
 ];
 
 export default function VideosPage() {
-  const { videos, loading, error, fetchVideos, userId, createVideo } =
-    useVideo();
+  const { videos, loading, error, fetchVideos, userId } = useVideo();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSample, setSelectedSample] = useState(null);
+  const [selectedSample, setSelectedSample] = useState<SampleVideo | null>(
+    null
+  );
 
   useEffect(() => {
     if (userId) {
@@ -48,15 +54,18 @@ export default function VideosPage() {
     }
   }, [userId, fetchVideos]);
 
-  const filteredVideos = videos.filter(
-    (video) =>
-      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      video.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Ensure videos is always an array before filtering
+  const filteredVideos = Array.isArray(videos)
+    ? videos.filter(
+        (video) =>
+          video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          video.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
-  const hasVideos = videos.length > 0;
+  const hasVideos = Array.isArray(videos) && videos.length > 0;
 
-  const handleAddSampleVideo = (sample) => {
+  const handleAddSampleVideo = (sample: SampleVideo) => {
     setSelectedSample(sample);
     setShowForm(true);
   };
@@ -64,14 +73,6 @@ export default function VideosPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Educational Videos
-          </h1>
-          <p className="text-gray-600">
-            Explore and learn from our collection of educational videos
-          </p>
-        </div>
         {hasVideos && (
           <div className="mt-4 md:mt-0">
             <button
@@ -206,10 +207,6 @@ export default function VideosPage() {
                         </div>
                       ))}
                     </div>
-                    <p className="text-sm text-gray-500 mt-4 text-center">
-                      Click on any sample to use it as a template for your first
-                      video
-                    </p>
                   </div>
                 </div>
               )}

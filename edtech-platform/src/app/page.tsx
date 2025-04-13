@@ -14,8 +14,6 @@ const symbols = [
   "%",
   "√",
   "π",
-  "∑",
-  "∫",
   "≠",
   "≤",
   "≥",
@@ -30,6 +28,7 @@ interface FallingSymbolProps {
   duration: number;
   fontSize: number;
   initialY: number;
+  animationProgress: number;
 }
 
 // Component for a single falling symbol
@@ -40,16 +39,18 @@ function FallingSymbol({
   duration,
   fontSize,
   initialY,
+  animationProgress,
 }: FallingSymbolProps) {
   return (
     <div
-      className="absolute text-white/20 font-bold pointer-events-none"
+      className="absolute text-white/30 font-bold pointer-events-none"
       style={{
         left: `${initialX}%`,
         top: `${initialY}%`,
         fontSize: `${fontSize}rem`,
+        opacity: 0.25 + Math.random() * 0.3,
         animation: `fall ${duration}s linear ${delay}s infinite`,
-        opacity: 0.1 + Math.random() * 0.2,
+        animationDelay: `-${animationProgress * duration}s`,
       }}
     >
       {symbol}
@@ -63,13 +64,16 @@ export default function Home() {
     []
   );
 
-  // Initialize splash screen state based on localStorage
+  // init splash screen state based on localStorage
   useEffect(() => {
+    // For dev/testing purposes, uncomment the next line to always show splash screen
+    // localStorage.removeItem('hasVisitedFeynman');
+
     // Check if this is the first visit
     const hasVisitedBefore = localStorage.getItem("hasVisitedFeynman");
 
     if (!hasVisitedBefore) {
-      // First visit - show splash screen and store that user has visited
+      // First visit 
       setShowSplash(true);
     }
   }, []);
@@ -86,14 +90,18 @@ export default function Home() {
     const newSymbols: FallingSymbolProps[] = [];
 
     for (let i = 0; i < symbolsCount; i++) {
+      // Distribute symbols throughout the entire viewport height and add animation progress
+      const animationProgress = Math.random(); // Random starting point in animation
+
       newSymbols.push({
         id: i,
         symbol: symbols[Math.floor(Math.random() * symbols.length)],
         initialX: Math.random() * 100,
-        initialY: -20 + Math.random() * 20,
-        delay: Math.random() * 5,
-        duration: 5 + Math.random() * 10,
+        initialY: Math.random() * 100, // Random starting position
+        delay: 0, // No delay for initial animation
+        duration: 8 + Math.random() * 8,
         fontSize: 1 + Math.random() * 3,
+        animationProgress,
       });
     }
 
@@ -137,7 +145,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Background Symbols (always visible) */}
+      {/* bg Symbols (always visible) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {fallingSymbols.slice(0, 20).map((symbolProps) => (
           <FallingSymbol
@@ -151,6 +159,18 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative flowing-gradient text-white py-24 md:py-32 overflow-hidden">
+        {/* Hero Section Falling Symbols */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {fallingSymbols.slice(10, 30).map((symbolProps) => (
+            <FallingSymbol
+              key={`hero-${symbolProps.id}`}
+              {...symbolProps}
+              fontSize={symbolProps.fontSize * 0.9}
+              duration={symbolProps.duration * 0.8}
+            />
+          ))}
+        </div>
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in-up">
@@ -182,7 +202,7 @@ export default function Home() {
         <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-white to-transparent"></div>
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#003459]">
-            Why Choose Feynman?
+            Why Learn on Feynman?
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -270,6 +290,19 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-16 flowing-gradient text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-80"></div>
+
+        {/* CTA Section Falling Symbols */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {fallingSymbols.slice(30, 45).map((symbolProps) => (
+            <FallingSymbol
+              key={`cta-${symbolProps.id}`}
+              {...symbolProps}
+              fontSize={symbolProps.fontSize * 0.8}
+              duration={symbolProps.duration}
+            />
+          ))}
+        </div>
+
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Ready to start learning?
