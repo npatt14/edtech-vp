@@ -9,6 +9,37 @@
   --white: #FFFFFF;
 }
 
+/* Falling animation for symbols */
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(150vh) rotate(360deg);
+    opacity: 0.1;
+  }
+}
+
+/* Flowing gradient animation for background */
+@keyframes flowingGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.flowing-gradient {
+  background: linear-gradient(-45deg, #00171F, #003459, #007EA7, #00A8E8);
+  background-size: 400% 400%;
+  animation: flowingGradient 15s ease infinite;
+}
+
 @layer base {
   body {
     @apply text-gray-900 bg-gray-50 font-normal;
