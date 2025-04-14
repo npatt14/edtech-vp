@@ -88,12 +88,50 @@ export default function VideoForm({
       general: "",
     });
 
+    // Validate all required fields
+    let hasErrors = false;
+    const newErrors = {
+      title: "",
+      description: "",
+      video_url: "",
+      user_id: "",
+      general: "",
+    };
+
+    // Validate title
+    if (!formData.title || formData.title.trim() === "") {
+      newErrors.title = "Title is required";
+      hasErrors = true;
+    }
+
+    // Validate description
+    if (!formData.description || formData.description.trim() === "") {
+      newErrors.description = "Description is required";
+      hasErrors = true;
+    }
+
+    // Validate video URL
+    if (!formData.video_url || formData.video_url.trim() === "") {
+      newErrors.video_url = "Video URL is required";
+      hasErrors = true;
+    } else {
+      // Basic URL validation
+      try {
+        new URL(formData.video_url);
+      } catch (_) {
+        newErrors.video_url = "Please enter a valid URL";
+        hasErrors = true;
+      }
+    }
+
     // Validate user ID
     if (!formData.user_id || formData.user_id.trim() === "") {
-      setErrors({
-        ...errors,
-        user_id: "User ID is required",
-      });
+      newErrors.user_id = "User ID is required";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setErrors(newErrors);
       setIsSubmitting(false);
       return;
     }
@@ -200,9 +238,10 @@ export default function VideoForm({
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#007EA7] focus:border-transparent ${
                   errors.title ? "border-red-500" : "border-gray-300"
                 }`}
+                required
               />
               {errors.title && (
-                <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.title}</p>
               )}
             </div>
 
@@ -223,9 +262,10 @@ export default function VideoForm({
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#007EA7] focus:border-transparent ${
                   errors.description ? "border-red-500" : "border-gray-300"
                 }`}
+                required
               />
               {errors.description && (
-                <p className="mt-1 text-sm text-red-500">
+                <p className="mt-1 text-sm text-red-600">
                   {errors.description}
                 </p>
               )}
@@ -249,6 +289,7 @@ export default function VideoForm({
                   className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#007EA7] focus:border-transparent ${
                     errors.video_url ? "border-red-500" : "border-gray-300"
                   }`}
+                  required
                 />
                 {initialData && (
                   <p className="mt-1 text-xs text-green-600">
@@ -257,7 +298,7 @@ export default function VideoForm({
                   </p>
                 )}
                 {errors.video_url && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-sm text-red-600">
                     {errors.video_url}
                   </p>
                 )}
@@ -288,10 +329,10 @@ export default function VideoForm({
             </div>
 
             {errors.user_id && (
-              <p className="mt-1 text-sm text-red-500">{errors.user_id}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
             )}
             {errors.general && (
-              <p className="mt-2 text-sm text-red-500">{errors.general}</p>
+              <p className="mt-2 text-sm text-red-600">{errors.general}</p>
             )}
 
             <div className="flex justify-end space-x-4 pt-4">
