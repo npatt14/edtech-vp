@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 
 interface VideoPlayerProps {
   src: string;
@@ -30,7 +29,6 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   const [errorDetails, setErrorDetails] = useState("");
   const [ytPlayerReady, setYtPlayerReady] = useState(false);
   const [ytApiReady, setYtApiReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -421,60 +419,50 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
       {hasError ? (
-        <div className="flex flex-col items-center justify-center h-full text-white p-4 relative">
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="/placeholder.jpg"
-              alt="Video error"
-              fill
-              className="object-cover opacity-20"
+        <div className="flex flex-col items-center justify-center h-full text-white p-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-16 w-16 text-red-500 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
-          </div>
-          <div className="relative z-10 flex flex-col items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-16 w-16 text-red-500 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h3 className="text-xl font-semibold mb-2">Video Error</h3>
-            <p className="text-center text-gray-300 mb-2">
-              Unable to load the video. The URL may be invalid, restricted, or
-              not supported by your browser.
+          </svg>
+          <h3 className="text-xl font-semibold mb-2">Video Error</h3>
+          <p className="text-center text-gray-300 mb-2">
+            Unable to load the video. The URL may be invalid, restricted, or not
+            supported by your browser.
+          </p>
+          {errorDetails && (
+            <p className="text-sm text-yellow-300 mb-4 text-center">
+              Error details: {errorDetails}
             </p>
-            {errorDetails && (
-              <p className="text-sm text-yellow-300 mb-4 text-center">
-                Error details: {errorDetails}
-              </p>
-            )}
-            <div className="mt-2 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
-              <code>{src || "No video URL provided"}</code>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                onClick={() => window.open(src, "_blank")}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-              >
-                Open URL directly
-              </button>
-              <button
-                onClick={() => {
-                  setHasError(false);
-                  setErrorDetails("");
-                }}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
-              >
-                Try again
-              </button>
-            </div>
+          )}
+          <div className="mt-2 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
+            <code>{src || "No video URL provided"}</code>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => window.open(src, "_blank")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+            >
+              Open URL directly
+            </button>
+            <button
+              onClick={() => {
+                setHasError(false);
+                setErrorDetails("");
+              }}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
+            >
+              Try again
+            </button>
           </div>
         </div>
       ) : isYouTube ? (
@@ -509,19 +497,6 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
         </div>
       ) : (
         <>
-          {isLoading && (
-            <div className="absolute inset-0 z-10 bg-black">
-              <Image
-                src="/placeholder.jpg"
-                alt={title}
-                fill
-                className="object-cover opacity-50"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-[#007EA7] border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            </div>
-          )}
           <video
             ref={videoRef}
             src={src}
@@ -530,14 +505,8 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
             title={title}
             controls={false}
             playsInline
-            onLoadStart={() => {
-              console.log("Video load started");
-              setIsLoading(true);
-            }}
-            onLoadedData={() => {
-              console.log("Video data loaded");
-              setIsLoading(false);
-            }}
+            onLoadStart={() => console.log("Video load started")}
+            onLoadedData={() => console.log("Video data loaded")}
             onError={(e) => {
               console.error("Video error:", e);
 

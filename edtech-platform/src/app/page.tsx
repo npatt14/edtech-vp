@@ -74,7 +74,7 @@ export default function Home() {
 
   // Generate falling symbols on component mount
   useEffect(() => {
-    const symbolsCount = 75;
+    const symbolsCount = 60;
     const newSymbols: FallingSymbolProps[] = [];
 
     for (let i = 0; i < symbolsCount; i++) {
@@ -135,7 +135,7 @@ export default function Home() {
 
       {/* bg Symbols (always visible) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {fallingSymbols.slice(0, 25).map((symbolProps) => (
+        {fallingSymbols.slice(0, 20).map((symbolProps) => (
           <FallingSymbol
             key={`bg-${symbolProps.id}`}
             {...symbolProps}
@@ -149,7 +149,7 @@ export default function Home() {
       <section className="relative flowing-gradient text-white py-24 md:py-32 overflow-hidden">
         {/* Hero Section Falling Symbols */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {fallingSymbols.slice(10, 38).map((symbolProps) => (
+          {fallingSymbols.slice(10, 30).map((symbolProps) => (
             <FallingSymbol
               key={`hero-${symbolProps.id}`}
               {...symbolProps}

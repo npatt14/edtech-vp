@@ -31,7 +31,7 @@ export default function VideoCard({ video }: VideoCardProps) {
     }
 
     // Default placeholder if not a YouTube video
-    return "/placeholder.jpg";
+    return "/placeholder-thumbnail.jpg";
   };
 
   // Only treat undefined, null, or empty string as invalid
