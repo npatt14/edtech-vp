@@ -27,7 +27,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${nunito.className} bg-white min-h-screen`}>
+      <body
+        className={`${nunito.className} bg-white min-h-screen`}
+        suppressHydrationWarning={true}
+      >
         <VideoProvider>
           <div className="flex flex-col min-h-screen">
             <Header />

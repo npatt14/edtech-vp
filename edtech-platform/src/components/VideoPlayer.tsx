@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 interface VideoPlayerProps {
   src: string;
@@ -29,6 +30,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   const [errorDetails, setErrorDetails] = useState("");
   const [ytPlayerReady, setYtPlayerReady] = useState(false);
   const [ytApiReady, setYtApiReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,6 +40,8 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
 
   // Load YouTube API
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     if (isYouTube && !window.YT) {
       // Load the YouTube API script
       const tag = document.createElement("script");
@@ -310,6 +314,8 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   };
 
   const toggleFullScreen = () => {
+    if (typeof document === "undefined") return;
+
     if (!document.fullscreenElement && containerRef.current) {
       containerRef.current
         .requestFullscreen()
@@ -415,50 +421,60 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
       {hasError ? (
-        <div className="flex flex-col items-center justify-center h-full text-white p-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-16 w-16 text-red-500 mb-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        <div className="flex flex-col items-center justify-center h-full text-white p-4 relative">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/placeholder.jpg"
+              alt="Video error"
+              fill
+              className="object-cover opacity-20"
             />
-          </svg>
-          <h3 className="text-xl font-semibold mb-2">Video Error</h3>
-          <p className="text-center text-gray-300 mb-2">
-            Unable to load the video. The URL may be invalid, restricted, or not
-            supported by your browser.
-          </p>
-          {errorDetails && (
-            <p className="text-sm text-yellow-300 mb-4 text-center">
-              Error details: {errorDetails}
-            </p>
-          )}
-          <div className="mt-2 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
-            <code>{src || "No video URL provided"}</code>
           </div>
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={() => window.open(src, "_blank")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+          <div className="relative z-10 flex flex-col items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-16 w-16 text-red-500 mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              Open URL directly
-            </button>
-            <button
-              onClick={() => {
-                setHasError(false);
-                setErrorDetails("");
-              }}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
-            >
-              Try again
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h3 className="text-xl font-semibold mb-2">Video Error</h3>
+            <p className="text-center text-gray-300 mb-2">
+              Unable to load the video. The URL may be invalid, restricted, or
+              not supported by your browser.
+            </p>
+            {errorDetails && (
+              <p className="text-sm text-yellow-300 mb-4 text-center">
+                Error details: {errorDetails}
+              </p>
+            )}
+            <div className="mt-2 p-2 bg-gray-800 rounded text-xs overflow-auto max-w-full">
+              <code>{src || "No video URL provided"}</code>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => window.open(src, "_blank")}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+              >
+                Open URL directly
+              </button>
+              <button
+                onClick={() => {
+                  setHasError(false);
+                  setErrorDetails("");
+                }}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
+              >
+                Try again
+              </button>
+            </div>
           </div>
         </div>
       ) : isYouTube ? (
@@ -467,48 +483,115 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
           <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
             YouTube Video
           </div>
+
+          {/* Large Play Button Overlay */}
+          {!isPlaying && (
+            <div
+              className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+              onClick={togglePlay}
+            >
+              <div className="bg-primary/80 hover:bg-primary text-white rounded-full p-6 shadow-lg transition-all duration-300">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-16 h-16"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
-        <video
-          ref={videoRef}
-          src={src}
-          className="w-full h-full object-contain"
-          onClick={togglePlay}
-          title={title}
-          controls={false}
-          playsInline
-          onLoadStart={() => console.log("Video load started")}
-          onLoadedData={() => console.log("Video data loaded")}
-          onError={(e) => {
-            console.error("Video error:", e);
+        <>
+          {isLoading && (
+            <div className="absolute inset-0 z-10 bg-black">
+              <Image
+                src="/placeholder.jpg"
+                alt={title}
+                fill
+                className="object-cover opacity-50"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-[#007EA7] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+          )}
+          <video
+            ref={videoRef}
+            src={src}
+            className="w-full h-full object-contain"
+            onClick={togglePlay}
+            title={title}
+            controls={false}
+            playsInline
+            onLoadStart={() => {
+              console.log("Video load started");
+              setIsLoading(true);
+            }}
+            onLoadedData={() => {
+              console.log("Video data loaded");
+              setIsLoading(false);
+            }}
+            onError={(e) => {
+              console.error("Video error:", e);
 
-            // Extract more specific error information if available
-            let errorMessage = "Unknown error";
-            if (videoRef.current) {
-              const mediaError = videoRef.current.error;
-              if (mediaError) {
-                // MediaError codes: 1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED
-                const codeMessages: Record<number, string> = {
-                  1: "Video loading aborted",
-                  2: "Network error while loading video",
-                  3: "Video format not supported or corrupted",
-                  4: "Video format not supported by browser",
-                };
+              // Extract more specific error information if available
+              let errorMessage = "Unknown error";
+              if (videoRef.current) {
+                const mediaError = videoRef.current.error;
+                if (mediaError) {
+                  // MediaError codes: 1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED
+                  const codeMessages: Record<number, string> = {
+                    1: "Video loading aborted",
+                    2: "Network error while loading video",
+                    3: "Video format not supported or corrupted",
+                    4: "Video format not supported by browser",
+                  };
 
-                errorMessage =
-                  codeMessages[mediaError.code] ||
-                  `Error code: ${mediaError.code}`;
-                if (mediaError.message) {
-                  errorMessage += ` - ${mediaError.message}`;
+                  errorMessage =
+                    codeMessages[mediaError.code] ||
+                    `Error code: ${mediaError.code}`;
+                  if (mediaError.message) {
+                    errorMessage += ` - ${mediaError.message}`;
+                  }
                 }
               }
-            }
 
-            setErrorDetails(errorMessage);
-            setHasError(true);
-          }}
-          autoPlay
-        />
+              setErrorDetails(errorMessage);
+              setHasError(true);
+            }}
+            autoPlay
+          />
+
+          {/* Large Play Button Overlay */}
+          {!isPlaying && (
+            <div
+              className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+              onClick={togglePlay}
+            >
+              <div className="bg-primary/80 hover:bg-primary text-white rounded-full p-6 shadow-lg transition-all duration-300">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-16 h-16"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {showControls && (
