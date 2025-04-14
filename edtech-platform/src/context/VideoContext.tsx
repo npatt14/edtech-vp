@@ -71,11 +71,24 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
   // Load user ID from localStorage on initial load
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedUserId = localStorage.getItem("userId");
-      if (savedUserId) {
-        setUserId(savedUserId);
+    try {
+      // Ensure this only runs in the browser
+      if (typeof window !== "undefined") {
+        // Add a slight delay to ensure localStorage is fully accessible
+        const timer = setTimeout(() => {
+          const savedUserId = localStorage.getItem("userId");
+          if (savedUserId) {
+            console.log("Loaded user ID from localStorage:", savedUserId);
+            setUserId(savedUserId);
+          } else {
+            console.log("No user ID found in localStorage");
+          }
+        }, 100);
+
+        return () => clearTimeout(timer);
       }
+    } catch (error) {
+      console.error("Error loading user ID from localStorage:", error);
     }
   }, []);
 

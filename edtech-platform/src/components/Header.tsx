@@ -10,18 +10,53 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [tempUserId, setTempUserId] = useState("");
   const [isUserIdModalOpen, setIsUserIdModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize tempUserId when userId changes
   useEffect(() => {
-    setTempUserId(userId);
+    setTempUserId(userId || "");
+
+    // After a short delay, mark as no longer loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [userId]);
+
+  // Initialize userId from localStorage if not set
+  useEffect(() => {
+    if (!userId && typeof window !== "undefined") {
+      try {
+        const savedUserId = localStorage.getItem("userId");
+        if (savedUserId) {
+          setUserId(savedUserId);
+        }
+      } catch (error) {
+        console.error("Error initializing user ID:", error);
+      }
+    }
+  }, [userId, setUserId]);
 
   const handleSaveUserId = () => {
     if (tempUserId.trim()) {
-      setUserId(tempUserId);
-      localStorage.setItem("userId", tempUserId);
+      try {
+        localStorage.setItem("userId", tempUserId);
+        setUserId(tempUserId);
+        console.log("User ID saved:", tempUserId);
+      } catch (error) {
+        console.error("Error saving user ID:", error);
+      }
     }
     setIsUserIdModalOpen(false);
   };
+
+  // Display text for the user ID button
+  const userIdDisplay = isLoading
+    ? "Loading..."
+    : userId
+    ? userId
+    : "Set User ID";
 
   return (
     <header className="bg-[#00171F] text-white sticky top-0 z-40 shadow-md">
@@ -53,9 +88,12 @@ export default function Header() {
           </Link>
           <button
             onClick={() => setIsUserIdModalOpen(true)}
-            className="flex items-center space-x-1 text-white hover:text-[#007EA7] transition-colors"
+            className={`flex items-center space-x-1 transition-colors ${
+              isLoading ? "text-gray-400" : "text-white hover:text-[#007EA7]"
+            }`}
+            disabled={isLoading}
           >
-            <span>{userId || "Set User ID"}</span>
+            <span>{userIdDisplay}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4"
@@ -130,9 +168,12 @@ export default function Header() {
                 setIsUserIdModalOpen(true);
                 setIsMenuOpen(false);
               }}
-              className="flex items-center space-x-1 text-white hover:text-[#007EA7] transition-colors"
+              className={`flex items-center space-x-1 transition-colors ${
+                isLoading ? "text-gray-400" : "text-white hover:text-[#007EA7]"
+              }`}
+              disabled={isLoading}
             >
-              <span>{userId || "Set User ID"}</span>
+              <span>{userIdDisplay}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4"
