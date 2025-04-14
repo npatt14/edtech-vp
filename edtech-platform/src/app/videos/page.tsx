@@ -56,7 +56,7 @@ export default function VideosPage() {
     }
   }, [userId, fetchVideos]);
 
-  // Ensure videos is always an array before filtering
+  // Ensure videos is ALWAYS an array before filtering
   const filteredVideos = Array.isArray(videos)
     ? videos.filter(
         (video) =>

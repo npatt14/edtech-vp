@@ -47,7 +47,7 @@ npm run dev
 - Tailwind CSS
 
 ## Future Dev Considerations
-
+- More extensive compenentization/modularization (refactorting code)
 - Implement memoization through hooks for  render optimization 
 - Optimize load  times w/ lazy & suspense
 - Enhance accessibility: ARIA attributes, keyboard navigation, skip nav
