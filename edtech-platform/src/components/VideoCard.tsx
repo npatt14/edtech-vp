@@ -64,8 +64,8 @@ export default function VideoCard({ video }: VideoCardProps) {
   }
 
   return (
-    <Link href={`/videos/${video_id}`} passHref>
-      <div className="group relative flex flex-col overflow-hidden rounded-xl bg-[#00171F] shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-[#00171F] shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
+      <Link href={`/videos/${video_id}`} passHref className="cursor-pointer">
         <div className="relative aspect-video overflow-hidden">
           <img
             src={getThumbnail(video_url)}
@@ -99,11 +99,11 @@ export default function VideoCard({ video }: VideoCardProps) {
             </div>
           </div>
         </div>
+      </Link>
 
-        <div className="p-4">
-          <p className="text-sm text-gray-300 line-clamp-2">{description}</p>
-        </div>
+      <div className="p-4">
+        <p className="text-sm text-gray-300 line-clamp-2">{description}</p>
       </div>
-    </Link>
+    </div>
   );
 }

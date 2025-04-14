@@ -5,19 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 
 // Array of arithmetic symbols
-const symbols = [
-  "×",
-  "÷",
-  "+",
-  "−",
-  "=",
-  "%",
-  "√",
-  "π",
-  "≠",
-  "≤",
-  "≥",
-];
+const symbols = ["×", "÷", "+", "−", "=", "%", "√", "π", "≠", "≤", "≥"];
 
 // Interface for FallingSymbol props
 interface FallingSymbolProps {
@@ -73,7 +61,7 @@ export default function Home() {
     const hasVisitedBefore = localStorage.getItem("hasVisitedFeynman");
 
     if (!hasVisitedBefore) {
-      // First visit 
+      // First visit
       setShowSplash(true);
     }
   }, []);

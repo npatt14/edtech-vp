@@ -58,27 +58,61 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   const initYouTubePlayer = () => {
     if (!youtubeId || !isYouTube) return;
 
+    // Make sure the YouTube div element exists
+    const youtubeElement = document.getElementById("youtube-player");
+    if (!youtubeElement) {
+      console.error("YouTube player element not found");
+      return;
+    }
+
     console.log("Initializing YouTube player with ID:", youtubeId);
 
-    // Create the YouTube player
-    youtubePlayerRef.current = new window.YT.Player("youtube-player", {
-      height: "100%",
-      width: "100%",
-      videoId: youtubeId,
-      playerVars: {
-        autoplay: 0,
-        controls: 0,
-        rel: 0,
-        showinfo: 0,
-        modestbranding: 1,
-        playsinline: 1,
-      },
-      events: {
-        onReady: onYouTubePlayerReady,
-        onStateChange: onYouTubeStateChange,
-        onError: onYouTubeError,
-      },
-    });
+    try {
+      // Make sure YT.Player is available
+      if (window.YT && typeof window.YT.Player === "function") {
+        // Clean up previous player if exists
+        if (youtubePlayerRef.current) {
+          try {
+            if (typeof youtubePlayerRef.current.destroy === "function") {
+              youtubePlayerRef.current.destroy();
+            }
+          } catch (e) {
+            console.warn("Could not destroy previous YouTube player:", e);
+          }
+        }
+
+        // Create the YouTube player
+        youtubePlayerRef.current = new window.YT.Player("youtube-player", {
+          height: "100%",
+          width: "100%",
+          videoId: youtubeId,
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            rel: 0,
+            showinfo: 0,
+            modestbranding: 1,
+            playsinline: 1,
+          },
+          events: {
+            onReady: onYouTubePlayerReady,
+            onStateChange: onYouTubeStateChange,
+            onError: onYouTubeError,
+          },
+        });
+      } else {
+        console.error(
+          "YouTube API not properly loaded, YT.Player not available"
+        );
+      }
+    } catch (error) {
+      console.error("Error initializing YouTube player:", error);
+      setHasError(true);
+      setErrorDetails(
+        "Failed to initialize YouTube player: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
+    }
   };
 
   const onYouTubePlayerReady = (event: any) => {
@@ -199,9 +233,15 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   useEffect(() => {
     if (youtubePlayerRef.current && ytPlayerReady && isYouTube) {
       try {
-        // YouTube volume is 0-100, our volume is 0-1
-        youtubePlayerRef.current.setVolume(volume * 100);
-        youtubePlayerRef.current.setPlaybackRate(playbackRate);
+        // Check if methods exist before calling them
+        if (typeof youtubePlayerRef.current.setVolume === "function") {
+          // YouTube volume is 0-100, our volume is 0-1
+          youtubePlayerRef.current.setVolume(volume * 100);
+        }
+
+        if (typeof youtubePlayerRef.current.setPlaybackRate === "function") {
+          youtubePlayerRef.current.setPlaybackRate(playbackRate);
+        }
       } catch (error) {
         console.error("Error setting YouTube volume/playback rate:", error);
       }
@@ -246,12 +286,20 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
 
   const togglePlay = () => {
     if (isYouTube && youtubePlayerRef.current && ytPlayerReady) {
-      if (isPlaying) {
-        youtubePlayerRef.current.pauseVideo();
-      } else {
-        youtubePlayerRef.current.playVideo();
+      try {
+        if (isPlaying) {
+          if (typeof youtubePlayerRef.current.pauseVideo === "function") {
+            youtubePlayerRef.current.pauseVideo();
+          }
+        } else {
+          if (typeof youtubePlayerRef.current.playVideo === "function") {
+            youtubePlayerRef.current.playVideo();
+          }
+        }
+        setIsPlaying(!isPlaying);
+      } catch (error) {
+        console.error("Error toggling YouTube playback:", error);
       }
-      setIsPlaying(!isPlaying);
     } else if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();

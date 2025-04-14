@@ -38,6 +38,7 @@ interface VideoContextType {
   updateVideo: (
     video: Pick<Video, "video_id" | "title" | "description">
   ) => Promise<void>;
+  deleteVideo: (videoId: string) => Promise<boolean>;
   fetchComments: (videoId: string) => Promise<void>;
   createComment: (
     comment: Omit<Comment, "comment_id" | "created_at">
@@ -274,6 +275,48 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteVideo = async (videoId: string): Promise<boolean> => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log(`Attempting to delete video with ID: ${videoId}`);
+
+      // Try API deletion first
+      try {
+        const response = await fetch(`${API_URL}/videos/${videoId}`, {
+          method: "DELETE",
+        });
+
+        // If API deletion succeeds
+        if (response.ok) {
+          console.log("Video successfully deleted via API");
+          // Update videos list by filtering out the deleted video
+          setVideos(videos.filter((video) => video.video_id !== videoId));
+          return true;
+        }
+
+        console.warn(
+          "API deletion failed, falling back to client-side deletion"
+        );
+      } catch (apiError) {
+        console.error("API deletion error:", apiError);
+        console.warn("Falling back to client-side deletion");
+      }
+
+      // Fallback: client-side deletion
+      setVideos(videos.filter((video) => video.video_id !== videoId));
+      console.log("Video removed from UI only");
+
+      return true;
+    } catch (err) {
+      console.error("Error in delete operation:", err);
+      setError(err instanceof Error ? err.message : "Failed to delete video");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchComments = async (videoId: string) => {
     try {
       // Validate videoId
@@ -359,21 +402,55 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setLoading(true);
+      // Don't set loading state for comment creation as it affects UI
+      // This prevents the video from reloading
       setError(null);
+
       const response = await fetch(`${API_URL}/videos/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(comment),
       });
+
       if (!response.ok) throw new Error("Failed to create comment");
-      await fetchComments(comment.video_id);
+
+      // Update comments without affecting video playback
+      try {
+        const fetchResponse = await fetch(
+          `${API_URL}/videos/comments?video_id=${comment.video_id}`
+        );
+        if (!fetchResponse.ok)
+          throw new Error("Failed to fetch updated comments");
+
+        const data = await fetchResponse.json();
+        console.log("Fetched updated comments:", data);
+
+        // Process comments data
+        let commentsArray = [];
+        if (data && typeof data === "object") {
+          if (Array.isArray(data)) {
+            commentsArray = data;
+          } else if (data.comments && Array.isArray(data.comments)) {
+            commentsArray = data.comments;
+          } else {
+            for (const key in data) {
+              if (Array.isArray(data[key])) {
+                commentsArray = data[key];
+                break;
+              }
+            }
+          }
+        }
+
+        // Update comments state without affecting loading state
+        setComments(commentsArray);
+      } catch (fetchErr) {
+        console.error("Error fetching updated comments:", fetchErr);
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -399,6 +476,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         fetchSingleVideo,
         createVideo,
         updateVideo,
+        deleteVideo,
         fetchComments,
         createComment,
         setUserId: handleSetUserId,

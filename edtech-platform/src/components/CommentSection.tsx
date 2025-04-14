@@ -22,14 +22,19 @@ export default function CommentSection({ videoId }: { videoId: string }) {
 
     const commentUserId = commentorId.trim() || userId;
 
-    await createComment({
-      video_id: videoId,
-      content: commentText,
-      user_id: commentUserId,
-    });
+    try {
+      await createComment({
+        video_id: videoId,
+        content: commentText,
+        user_id: commentUserId,
+      });
 
-    setCommentText("");
-    setCommentorId("");
+      // Clear only the form inputs, don't reset anything else
+      setCommentText("");
+      setCommentorId("");
+    } catch (error) {
+      console.error("Error posting comment:", error);
+    }
   };
 
   // Format date
@@ -107,7 +112,7 @@ export default function CommentSection({ videoId }: { videoId: string }) {
               className="bg-white p-4 rounded-lg shadow"
             >
               <div className="flex justify-between items-start mb-2">
-                <h4 className="font-semibold text-[#003459]">
+                <h4 className="text-sm font-medium text-[#003459]">
                   @{comment.user_id || "anonymous"}
                 </h4>
                 <span className="text-xs text-gray-500">
