@@ -118,8 +118,9 @@ export default function VideoForm({
       // Basic URL validation
       try {
         new URL(formData.video_url);
-      } catch (_) {
+      } catch (error) {
         newErrors.video_url = "Please enter a valid URL";
+        console.error("Error validating video URL:", error);
         hasErrors = true;
       }
     }
