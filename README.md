@@ -20,7 +20,7 @@ An educational platform that provides video content management.
 1. Clone the repository
 
 ```
-git clone https://github.com/yourusername/edtech-platform.git
+git clone https://github.com/npatt14/Feynman.git
 cd edtech-platform
 ```
 
