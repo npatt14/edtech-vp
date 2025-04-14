@@ -39,3 +39,12 @@ npm run dev
 - React
 - TypeScript
 - Tailwind CSS
+
+## Future Dev Considerations
+
+- Implement memoization through hooks for  render optimization 
+- Optimize load  times w/ lazy & suspense
+- Enhance accessibility: ARIA attributes, keyboard navigation, skip nav
+- Add Error Boundaries
+- Testing for custom hook
+- Theming support
