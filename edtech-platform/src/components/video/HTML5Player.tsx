@@ -5,7 +5,7 @@ import { RefObject } from "react";
 interface HTML5PlayerProps {
   src: string;
   title: string;
-  videoRef: RefObject<HTMLVideoElement>;
+  videoRef: RefObject<HTMLVideoElement | null>;
   isPlaying: boolean;
   togglePlay: () => void;
   onLoadStart: () => void;
@@ -35,7 +35,7 @@ export function HTML5Player({
         playsInline
         onLoadStart={onLoadStart}
         onLoadedData={onLoadedData}
-        onError={(e) => onError(e)}
+        onError={(e) => onError(e.nativeEvent)}
         autoPlay
       />
 

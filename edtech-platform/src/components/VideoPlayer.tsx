@@ -38,7 +38,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
       if (videoState.isPlaying) {
         videoState.setShowControls(false);
       }
-    }, 3000);
+    }, 3000) as unknown as number;
   };
 
   // Set mounted state on client-side

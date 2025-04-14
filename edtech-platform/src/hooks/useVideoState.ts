@@ -16,7 +16,7 @@ interface VideoStateReturn {
     ytPlayerReady: boolean;
     isLoading: boolean;
     isMounted: boolean;
-    controlsTimeoutRef: React.MutableRefObject<NodeJS.Timeout | null>;
+    controlsTimeoutRef: React.RefObject<number | null>;
     setShowControls: (show: boolean) => void;
     setHasError: (hasError: boolean) => void;
     setErrorDetails: (details: string) => void;
@@ -32,9 +32,9 @@ interface VideoStateReturn {
     handleVideoError: (e: Event) => void;
   };
   refs: {
-    videoRef: React.RefObject<HTMLVideoElement>;
-    containerRef: React.RefObject<HTMLDivElement>;
-    youtubePlayerRef: React.MutableRefObject<any>;
+    videoRef: React.RefObject<HTMLVideoElement | null>;
+    containerRef: React.RefObject<HTMLDivElement | null>;
+    youtubePlayerRef: React.RefObject<YouTubePlayer | null>;
   };
 }
 
@@ -59,8 +59,12 @@ declare global {
           height: string;
           width: string;
           videoId: string;
-          playerVars: Record<string, any>;
-          events: Record<string, (event: any) => void>;
+          playerVars: Record<string, unknown>;
+          events: {
+            onReady?: (event: { target: YouTubePlayer }) => void;
+            onStateChange?: (event: { data: number }) => void;
+            onError?: (event: { data: number }) => void;
+          };
         }
       ) => YouTubePlayer;
     };
@@ -86,7 +90,7 @@ export function useVideoState(src: string): VideoStateReturn {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<number | null>(null);
   const youtubePlayerRef = useRef<YouTubePlayer | null>(null);
   const animationFrameRef = useRef<number | null>(null);
 
@@ -130,8 +134,9 @@ export function useVideoState(src: string): VideoStateReturn {
             if (typeof youtubePlayerRef.current.destroy === "function") {
               youtubePlayerRef.current.destroy();
             }
-          } catch (_) {
-            // Ignore destroy errors
+          } catch (error) {
+            // Log but continue execution since this is cleanup
+            console.warn("Error cleaning up YouTube player:", error);
           }
         }
 
@@ -209,8 +214,9 @@ export function useVideoState(src: string): VideoStateReturn {
         try {
           const currentTime = youtubePlayerRef.current.getCurrentTime();
           setCurrentTime(currentTime);
-        } catch (_) {
-          // Ignore time update errors
+        } catch (error) {
+          // Non-critical error, log and continue
+          console.warn("Error updating YouTube playback time:", error);
         }
       }
 
@@ -255,7 +261,8 @@ export function useVideoState(src: string): VideoStateReturn {
         }
       }
       setHasError(false);
-    } catch (_) {
+    } catch (error) {
+      console.error("Error parsing video URL:", error);
       setIsYouTube(false);
       setYoutubeId("");
       setHasError(true);
@@ -283,8 +290,8 @@ export function useVideoState(src: string): VideoStateReturn {
         if (typeof youtubePlayerRef.current.setPlaybackRate === "function") {
           youtubePlayerRef.current.setPlaybackRate(playbackRate);
         }
-      } catch (_) {
-        // Silently handle YouTube API errors
+      } catch (error) {
+        console.error("Error setting YouTube player properties:", error);
         setHasError(true);
         setErrorDetails("Error setting YouTube player properties");
       }
@@ -322,8 +329,8 @@ export function useVideoState(src: string): VideoStateReturn {
           youtubePlayerRef.current.playVideo();
         }
         setIsPlaying(!isPlaying);
-      } catch (_) {
-        // Silently handle yt playback errors
+      } catch (error) {
+        console.error("Error toggling YouTube playback:", error);
         setHasError(true);
         setErrorDetails("Error toggling YouTube playback");
       }
@@ -365,6 +372,7 @@ export function useVideoState(src: string): VideoStateReturn {
   };
 
   // Helper function to format time display
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const formatTime = (seconds: number) => {
     if (isNaN(seconds) || seconds < 0) {
       return "0:00";

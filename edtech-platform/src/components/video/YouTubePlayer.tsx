@@ -13,7 +13,11 @@ export function YouTubePlayer({
 }: YouTubePlayerProps) {
   return (
     <div className="w-full h-full">
-      <div id="youtube-player" className="w-full h-full"></div>
+      <div
+        id="youtube-player"
+        data-video-id={youtubeId}
+        className="w-full h-full"
+      ></div>
       <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
         YouTube Video
       </div>
