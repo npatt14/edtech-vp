@@ -135,7 +135,17 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         }
       );
 
-      setVideos(processedVideos);
+      // Deduplicate videos by URL using filter and keeping only the first occurrence
+      const uniqueVideos = processedVideos.filter(
+        (video: Partial<Video>, index: number, self: Array<Partial<Video>>) =>
+          index ===
+          self.findIndex(
+            (v: Partial<Video>) =>
+              v.video_url === video.video_url && video.video_url !== undefined
+          )
+      );
+
+      setVideos(uniqueVideos as Video[]);
     } catch (err) {
       console.error("Error fetching videos:", err);
       setError(
