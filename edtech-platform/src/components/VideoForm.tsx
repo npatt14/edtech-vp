@@ -34,6 +34,8 @@ export default function VideoForm({
     title: "",
     description: "",
     video_url: "",
+    user_id: "",
+    general: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,6 +70,8 @@ export default function VideoForm({
       title: "",
       description: "",
       video_url: "",
+      user_id: "",
+      general: "",
     };
 
     if (!formData.title.trim()) {
@@ -105,47 +109,45 @@ export default function VideoForm({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
     setIsSubmitting(true);
+    setErrors({
+      title: "",
+      description: "",
+      video_url: "",
+      user_id: "",
+      general: "",
+    });
+
+    // Validate user ID
+    if (!formData.user_id || formData.user_id.trim() === "") {
+      setErrors({
+        ...errors,
+        user_id: "User ID is required",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      if (isEdit && video) {
-        await updateVideo({
-          video_id: video.video_id,
-          title: formData.title,
-          description: formData.description,
-        });
-      } else {
-        console.log("Submitting new video with user ID:", formData.user_id);
+      await createVideo({
+        user_id: formData.user_id,
+        title: formData.title,
+        description: formData.description,
+        video_url: formData.video_url,
+      });
 
-        // Ensure user ID is set
-        if (!formData.user_id.trim()) {
-          setErrors((prev) => ({ ...prev, user_id: "User ID is required" }));
-          setIsSubmitting(false);
-          return;
-        }
-
-        await createVideo({
-          user_id: formData.user_id,
-          title: formData.title,
-          description: formData.description,
-          video_url: formData.video_url,
-        });
-
-        // Give a slight delay to allow state updates to propagate
-        setTimeout(() => {
-          onClose();
-        }, 500);
-      }
+      // If we get here, assume success
+      setTimeout(() => {
+        onClose();
+      }, 500);
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert(
-        "There was a problem adding your video. Please check the console for details."
-      );
+      setErrors({
+        ...errors,
+        general: "Failed to create video. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -316,6 +318,13 @@ export default function VideoForm({
                   : "Use your first_last format (e.g., john_smith)"}
               </p>
             </div>
+
+            {errors.user_id && (
+              <p className="mt-1 text-sm text-red-500">{errors.user_id}</p>
+            )}
+            {errors.general && (
+              <p className="mt-2 text-sm text-red-500">{errors.general}</p>
+            )}
 
             <div className="flex justify-end space-x-4 pt-4">
               <button

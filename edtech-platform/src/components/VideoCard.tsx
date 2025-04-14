@@ -14,9 +14,6 @@ export default function VideoCard({ video }: VideoCardProps) {
   const description = video.description || "No description available";
   const video_url = video.video_url || "";
 
-  // Log the video info for debugging
-  console.log("Video card rendering:", { video_id, title, video });
-
   // Get thumbnail from video URL
   const getThumbnail = (url: string) => {
     // For YouTube videos
@@ -31,7 +28,7 @@ export default function VideoCard({ video }: VideoCardProps) {
     }
 
     // Default placeholder if not a YouTube video
-    return "/placeholder-thumbnail.jpg";
+    return "/placeholder.jpg";
   };
 
   // Only treat undefined, null, or empty string as invalid

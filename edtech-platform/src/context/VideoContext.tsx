@@ -64,9 +64,9 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     process.env.NEXT_PUBLIC_API_URL ||
     "https://take-home-assessment-423502.uc.r.appspot.com/api";
 
-  // Log API endpoint for debugging
+  // Remove debug logging for API endpoint
   useEffect(() => {
-    console.log("Using API URL:", API_URL);
+    // Intentionally empty
   }, [API_URL]);
 
   // Load user ID from localStorage on initial load
@@ -83,11 +83,9 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      console.log(`Fetching videos for user: ${userId}`);
       const response = await fetch(`${API_URL}/videos?user_id=${userId}`);
       if (!response.ok) throw new Error("Failed to fetch videos");
       const data = await response.json();
-      console.log("Fetched videos API response:", data);
 
       // Extract videos from response
       let videosArray = [];
@@ -95,12 +93,10 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       if (data && typeof data === "object") {
         // Check if data is already an array of videos
         if (Array.isArray(data)) {
-          console.log("API returned array directly:", data);
           videosArray = data;
         }
         // Check if videos are in a videos property
         else if (data.videos && Array.isArray(data.videos)) {
-          console.log("API returned videos in videos property:", data.videos);
           videosArray = data.videos;
         }
         // Try other common API response patterns
@@ -108,7 +104,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
           // Look for any array in the response
           for (const key in data) {
             if (Array.isArray(data[key])) {
-              console.log(`Found videos in '${key}' property:`, data[key]);
               videosArray = data[key];
               break;
             }
@@ -116,26 +111,18 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      console.log("Raw videos before processing:", videosArray);
-
       // Ensure each video has required properties
       const processedVideos = videosArray.map(
         (video: Partial<Video> & { id?: string }) => {
-          // Log each video for debugging
-          console.log("Processing video:", video);
-
           // Ensure video has an id
           if (!video.video_id && video.id) {
-            console.log("Converting id to video_id:", video);
             return { ...video, video_id: video.id };
           }
-
           return video;
         }
       );
 
       setVideos(processedVideos);
-      console.log("Final videos for UI:", processedVideos);
     } catch (err) {
       console.error("Error fetching videos:", err);
       setError(
@@ -158,9 +145,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       // Check if this request is already in progress
       const requestKey = `video-${videoId}`;
       if (activeRequests.current.has(requestKey)) {
-        console.log(
-          `Request for video ${videoId} already in progress, skipping`
-        );
         return;
       }
 
@@ -169,13 +153,11 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
       setLoading(true);
       setError(null);
-      console.log(`Fetching single video with ID: ${videoId}`);
       const response = await fetch(
         `${API_URL}/videos/single?video_id=${videoId}`
       );
       if (!response.ok) throw new Error("Failed to fetch video");
       const data = await response.json();
-      console.log("Single video response:", data);
 
       // Process response to ensure we have a valid video
       if (!data) {
@@ -185,7 +167,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       // Extract video from the nested structure if it exists
       let videoData = data;
       if (data.video && typeof data.video === "object") {
-        console.log("Video is nested in a 'video' property, extracting it");
         videoData = data.video;
       }
 
@@ -203,7 +184,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         videoData.video_url = `https://${videoData.video_url}`;
       }
 
-      console.log("Processed video data:", videoData);
       setCurrentVideo(videoData);
     } catch (err) {
       console.error("Error fetching single video:", err);
@@ -221,7 +201,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      console.log("Creating video with data:", video);
       const response = await fetch(`${API_URL}/videos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,7 +208,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       });
 
       const responseText = await response.text();
-      console.log("Create video response:", responseText);
 
       if (!response.ok)
         throw new Error(`Failed to create video: ${responseText}`);
@@ -267,6 +245,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       }
       await fetchVideos(userId);
     } catch (err) {
+      console.error("Error updating video:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
@@ -279,7 +258,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      console.log(`Attempting to delete video with ID: ${videoId}`);
 
       // Try API deletion first
       try {
@@ -289,7 +267,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
         // If API deletion succeeds
         if (response.ok) {
-          console.log("Video successfully deleted via API");
           // Update videos list by filtering out the deleted video
           setVideos(videos.filter((video) => video.video_id !== videoId));
           return true;
@@ -305,7 +282,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
       // Fallback: client-side deletion
       setVideos(videos.filter((video) => video.video_id !== videoId));
-      console.log("Video removed from UI only");
 
       return true;
     } catch (err) {
@@ -329,9 +305,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       // Check if this request is already in progress
       const requestKey = `comments-${videoId}`;
       if (activeRequests.current.has(requestKey)) {
-        console.log(
-          `Request for comments of video ${videoId} already in progress, skipping`
-        );
         return;
       }
 
@@ -340,13 +313,11 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
       setLoading(true);
       setError(null);
-      console.log(`Fetching comments for video ID: ${videoId}`);
       const response = await fetch(
         `${API_URL}/videos/comments?video_id=${videoId}`
       );
       if (!response.ok) throw new Error("Failed to fetch comments");
       const data = await response.json();
-      console.log("Raw comments data from API:", data);
 
       // Handle different API response formats for comments
       let commentsArray = [];
@@ -354,22 +325,16 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       if (data && typeof data === "object") {
         // Direct array of comments
         if (Array.isArray(data)) {
-          console.log("API returned comments as array:", data);
           commentsArray = data;
         }
         // Comments in a comments property
         else if (data.comments && Array.isArray(data.comments)) {
-          console.log(
-            "API returned comments in comments property:",
-            data.comments
-          );
           commentsArray = data.comments;
         }
         // Look for any array in the response
         else {
           for (const key in data) {
             if (Array.isArray(data[key])) {
-              console.log(`Found comments in '${key}' property:`, data[key]);
               commentsArray = data[key];
               break;
             }
@@ -377,7 +342,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      console.log("Processed comments for UI:", commentsArray);
       setComments(commentsArray);
     } catch (err) {
       console.error("Error fetching comments:", err);
@@ -423,7 +387,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
           throw new Error("Failed to fetch updated comments");
 
         const data = await fetchResponse.json();
-        console.log("Fetched updated comments:", data);
 
         // Process comments data
         let commentsArray = [];
@@ -448,6 +411,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         console.error("Error fetching updated comments:", fetchErr);
       }
     } catch (err) {
+      console.error("Error creating comment:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );

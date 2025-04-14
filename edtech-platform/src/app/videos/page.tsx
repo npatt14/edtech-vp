@@ -56,20 +56,6 @@ export default function VideosPage() {
     }
   }, [userId, fetchVideos]);
 
-  // Add debugging for videos array
-  useEffect(() => {
-    if (Array.isArray(videos)) {
-      console.log("Videos array in page:", videos);
-      if (videos.length > 0) {
-        console.log("First video object:", videos[0]);
-      } else {
-        console.log("Videos array is empty");
-      }
-    } else {
-      console.log("Videos is not an array:", videos);
-    }
-  }, [videos]);
-
   // Ensure videos is always an array before filtering
   const filteredVideos = Array.isArray(videos)
     ? videos.filter(
@@ -158,7 +144,6 @@ export default function VideosPage() {
             <button
               onClick={() => {
                 if (userId) {
-                  console.log("Manually refreshing videos for:", userId);
                   fetchVideos(userId);
                 } else {
                   alert("Please set your User ID first");

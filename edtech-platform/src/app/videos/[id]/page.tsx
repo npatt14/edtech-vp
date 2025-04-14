@@ -19,16 +19,11 @@ export default function VideoPage() {
 
   useEffect(() => {
     if (videoId && !initialFetchMade.current) {
-      console.log("Fetching video with ID:", videoId);
-
       initialFetchMade.current = true;
-
       fetchSingleVideo(videoId);
       fetchComments(videoId);
-    } else if (!videoId) {
-      console.error("Video ID is undefined, skipping fetch");
     }
-  }, [videoId]);
+  }, [videoId, fetchSingleVideo, fetchComments]);
 
   if (loading) {
     return (

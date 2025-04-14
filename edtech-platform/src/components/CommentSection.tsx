@@ -9,9 +9,6 @@ export default function CommentSection({ videoId }: { videoId: string }) {
   const [commentText, setCommentText] = useState("");
   const [commentorId, setCommentorId] = useState("");
 
-  // For debugging
-  console.log("Comments data:", comments);
-
   // Ensure comments is always an array
   const commentsArray = Array.isArray(comments) ? comments : [];
 
@@ -37,7 +34,6 @@ export default function CommentSection({ videoId }: { videoId: string }) {
     }
   };
 
-  // Format date
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return new Intl.DateTimeFormat("en-US", {
