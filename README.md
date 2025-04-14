@@ -4,6 +4,7 @@ An educational platform that provides video content management.
 
    ![Splash View](./splash.png)
    ![Home View](./home.png)
+   ![New User Videos View](./newUser.png)
    ![Videos View](./videos.png)
    ![Video View](./video.png)
 
