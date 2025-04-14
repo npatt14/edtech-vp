@@ -21,7 +21,7 @@ export default function VideoForm({
   isEdit = false,
   initialData = null,
 }: VideoFormProps) {
-  const { createVideo, updateVideo, userId } = useVideo();
+  const { createVideo, userId } = useVideo();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -64,38 +64,6 @@ export default function VideoForm({
       });
     }
   }, [isEdit, video, userId, initialData]);
-
-  const validateForm = () => {
-    const newErrors = {
-      title: "",
-      description: "",
-      video_url: "",
-      user_id: "",
-      general: "",
-    };
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Title is required";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
-    }
-
-    if (!formData.video_url.trim()) {
-      newErrors.video_url = "Video URL is required";
-    } else {
-      try {
-        new URL(formData.video_url);
-      } catch (e) {
-        newErrors.video_url = "Please enter a valid URL";
-      }
-    }
-
-    setErrors(newErrors);
-
-    return !Object.values(newErrors).some((error) => error);
-  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -205,9 +173,9 @@ export default function VideoForm({
                 </div>
                 <div>
                   <p className="text-sm text-blue-800">
-                    We've pre-filled the form with the sample video information.
-                    Feel free to edit any details before adding it to your
-                    collection.
+                    We&apos;ve pre-filled the form with the sample video
+                    information. Feel free to edit any details before adding it
+                    to your collection.
                   </p>
                 </div>
               </div>

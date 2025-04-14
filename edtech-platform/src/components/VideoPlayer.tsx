@@ -44,7 +44,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
   // Set mounted state on client-side
   useEffect(() => {
     videoState.setIsMounted(true);
-  }, [videoState]);
+  }, []); // Empty dependency array - only run once on mount
 
   return (
     <div
