@@ -30,7 +30,8 @@ npm install
 npm run dev
 ```
 
-4. Open your browser and navigate to http://localhost:3000
+4. Open your browser and navigate to http://localhost:3000 
+(or other specified URL in console)
 
 ## Technologies Used
 
