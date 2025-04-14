@@ -99,11 +99,13 @@ export default function CommentSection({ videoId }: { videoId: string }) {
             No comments yet. Be the first to comment!
           </p>
         ) : (
-          commentsArray.map((comment: CommentType) => (
+          commentsArray.map((comment: CommentType, index: number) => (
             <div
               key={
                 comment.comment_id ||
-                `comment-${comment.content?.substring(0, 10)}`
+                `comment-${
+                  comment.user_id
+                }-${index}-${comment.content?.substring(0, 5)}`
               }
               className="bg-white p-4 rounded-lg shadow"
             >

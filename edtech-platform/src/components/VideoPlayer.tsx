@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { YouTubePlayer } from "./video/YouTubePlayer";
-import { HTML5Player } from "./video/HTML5Player";
-import { VideoControls } from "./video/VideoControls";
-import { ErrorDisplay } from "./video/ErrorDisplay";
-import { LoadingOverlay } from "./video/LoadingOverlay";
+import {
+  YouTubePlayer,
+  HTML5Player,
+  VideoControls,
+  ErrorDisplay,
+  LoadingOverlay,
+} from "./video";
 import { useVideoState } from "@/hooks/useVideoState";
 
 interface VideoPlayerProps {
@@ -13,10 +15,9 @@ interface VideoPlayerProps {
   title: string;
 }
 
-// Add the YouTube IFrame API type
+// Remove conflicting Window.YT declaration
 declare global {
   interface Window {
-    YT: any;
     onYouTubeIframeAPIReady: () => void;
   }
 }
