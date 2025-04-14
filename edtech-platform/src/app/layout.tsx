@@ -39,15 +39,12 @@ export default function RootLayout({
               <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row items-center justify-between">
                   <div className="mb-4 md:mb-0">
-                    <span className="text-xl font-bold text-[#007EA7]">
-                      Feynman
-                    </span>
                     <p className="text-sm text-gray-400 mt-1">
                       Expanding minds through educational content
                     </p>
                   </div>
                   <div className="text-sm text-gray-400">
-                    © {new Date().getFullYear()} Feynman. All rights reserved.
+                    © {new Date().getFullYear()}
                   </div>
                 </div>
               </div>
