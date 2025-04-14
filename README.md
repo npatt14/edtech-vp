@@ -1,6 +1,11 @@
 # Feynman
 
-A web-based educational platform that provides video content management and learning features.
+An educational platform that provides video content management.
+
+   ![Splash View](./splash.png)
+   ![Home View](./home.png)
+   ![Videos View](./videos.png)
+   ![Video View](./video.png)
 
 ## Setup Instructions
 
