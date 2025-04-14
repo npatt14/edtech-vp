@@ -12,8 +12,7 @@ export default function VideoPage() {
   const { id } = useParams();
   const videoId = Array.isArray(id) ? id[0] : id;
 
-  const { currentVideo, fetchSingleVideo, fetchComments, loading, error } =
-    useVideo();
+  const { currentVideo, fetchSingleVideo, fetchComments, loading, error } = useVideo();
   const [showEditForm, setShowEditForm] = useState(false);
   const initialFetchMade = useRef(false);
 
